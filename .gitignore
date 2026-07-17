@@ -1,0 +1,49 @@
+# 环境与密钥（切勿提交）
+.env
+.env.local
+.env.*.local
+
+# Docker 数据
+data/
+postgres_data/
+redis_data/
+qdrant_data/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# 测试与缓存
+.pytest_cache/
+.cache/
+.coverage
+.coverage.*
+htmlcov/
+*.db
+guochuang_test.db
+
+# 日志文件
+*.log
+logs/
+
+# 编辑器/系统
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# 临时文件和备份
+*.bak
+*.tmp
+*~
+*.backup
+*-old.html
+*-broken.html.bak
+*-temp.html

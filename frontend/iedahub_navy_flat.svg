@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 240 240">
+<rect x="0" y="0" width="240" height="240" rx="0" fill="#0f2c5e"/>
+<g transform="translate(120,120) scale(1.55) translate(-120,-120)">
+<path d="M82,60 L170,60 A10,10 0 0 1 180,70 L180,170 A10,10 0 0 1 170,180 L70,180 A10,10 0 0 1 60,170 L60,82 Z" fill="#0f2c5e" stroke="#ffffff" stroke-width="2.5"/>
+<rect x="72" y="72" width="46" height="38" rx="4" fill="#ffffff"/>
+<rect x="122" y="72" width="46" height="38" rx="4" fill="#ffffff"/>
+<rect x="72" y="114" width="34" height="54" rx="4" fill="#ffffff"/>
+<rect x="110" y="114" width="58" height="54" rx="4" fill="#ffffff"/>
+<circle cx="145" cy="135" r="3" fill="#0f2c5e"/>
+<g fill="#ffffff">
+<rect x="44" y="92.5" width="16" height="7" rx="2"/>
+<rect x="44" y="116.5" width="16" height="7" rx="2"/>
+<rect x="44" y="140.5" width="16" height="7" rx="2"/>
+<rect x="180" y="92.5" width="16" height="7" rx="2"/>
+<rect x="180" y="116.5" width="16" height="7" rx="2"/>
+<rect x="180" y="140.5" width="16" height="7" rx="2"/>
+</g>
+</g>
+</svg>

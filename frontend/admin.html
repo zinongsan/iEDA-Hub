@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理后台 - EDA 国创中心综合服务平台</title>
+<link rel="icon" href="/frontend/assets/images/nctieda_logo.png">
+<link rel="stylesheet" href="/frontend/assets/css/style.css">
+<style>
+body { align-items: flex-start; justify-content: flex-start; background: #f5f7fa; min-height: 100vh; }
+body::before, body::after { display: none; }
+.admin-layout { width: 100%; }
+.main h2 { color: #1e3c72; margin-bottom: 18px; font-size: 20px; }
+.main .desc { color: #64748b; font-size: 13px; margin-bottom: 18px; }
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 22px; }
+.kpi {
+    background: #fff; border: 1px solid #eaeef3; border-radius: 12px;
+    padding: 16px 20px; box-shadow: 0 1px 3px rgba(15,23,42,.04);
+}
+.kpi .label { font-size: 12px; color: #64748b; margin-bottom: 6px; }
+.kpi .value { font-size: 24px; font-weight: 600; color: #1e3c72; }
+.kpi .delta { font-size: 11px; color: #10b981; margin-top: 3px; }
+.user-select-row { background: #eef4ff; border-left: 3px solid #1e40af; padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; display: none; align-items: center; gap: 12px; }
+.user-select-row.show { display: flex; }
+.user-select-row .count { font-size: 13px; color: #1e3c72; }
+.user-select-row select { padding: 7px 12px; border: 1px solid #d1d9e0; border-radius: 6px; font-size: 13px; }
+.row-group-select {
+    padding: 4px 8px; border: 1px solid #d1d9e0; border-radius: 5px; font-size: 12px;
+    background: #fff; cursor: pointer; max-width: 140px;
+}
+.row-group-select:focus { border-color: #1e40af; outline: none; }
+.group-card {
+    background: #fff; border: 1px solid #eaeef3; border-radius: 12px;
+    padding: 18px; box-shadow: 0 1px 3px rgba(15,23,42,.04);
+    transition: all 0.2s;
+}
+.group-card:hover { box-shadow: 0 8px 24px rgba(30, 64, 175, 0.08); transform: translateY(-2px); }
+.group-card-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px; margin-top: 14px;
+}
+.group-card .name { font-size: 16px; font-weight: 600; color: #1e3c72; margin-bottom: 4px; }
+.group-card .desc-text { font-size: 12px; color: #64748b; margin-bottom: 12px; min-height: 16px; }
+.group-card .members { font-size: 13px; color: #475569; margin: 10px 0; }
+.group-card .members strong { color: #1e3c72; font-size: 18px; }
+.group-card .actions { display: flex; gap: 6px; margin-top: 10px; }
+.group-card .actions button { font-size: 12px; padding: 5px 10px; border-radius: 5px; border: none; cursor: pointer; }
+.group-card .view-btn { background: #1e40af; color: #fff; }
+.group-card .del-btn { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca !important; }
+.modal-mask {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 9999;
+    display: none; align-items: center; justify-content: center;
+}
+.modal-mask.show { display: flex; }
+.modal {
+    background: #fff; border-radius: 12px; width: 90%; max-width: 540px;
+    max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.modal-head { padding: 14px 20px; border-bottom: 1px solid #f0f2f5; display: flex; justify-content: space-between; align-items: center; }
+.modal-head .title { font-size: 16px; font-weight: 600; color: #1e3c72; }
+.modal-head .close { font-size: 22px; background: none; border: none; cursor: pointer; color: #94a3b8; }
+.modal-body { padding: 18px 20px; }
+.member-list { max-height: 380px; overflow-y: auto; }
+.member-list .item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+.member-list .item:last-child { border-bottom: none; }
+.member-list .empty { text-align: center; color: #94a3b8; padding: 30px; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>🛡 管理控制台</h2>
+        <nav>
+            <a class="active" data-tab="users">👥 用户管理</a>
+            <a data-tab="groups">📁 用户组管理</a>
+            <a href="/app/iedahub" style="margin-top:16px;color:#aee6ff;">↩ 返回主页</a>
+            <a id="logoutLink" href="#" style="color:#fda4af;">🚪 退出登录</a>
+        </nav>
+    </aside>
+
+    <main class="main">
+
+        <!-- 用户管理 -->
+        <section id="tab-users">
+            <h2>用户管理</h2>
+            <div class="desc">查看、搜索、修改用户的等级、用户组与状态</div>
+
+            <div class="kpi-row">
+                <div class="kpi"><div class="label">用户总数</div><div class="value" id="kpiTotal">-</div></div>
+                <div class="kpi"><div class="label">普通用户</div><div class="value" id="kpiNormal">-</div></div>
+                <div class="kpi"><div class="label">高级用户</div><div class="value" id="kpiPremium">-</div></div>
+                <div class="kpi"><div class="label">用户组数</div><div class="value" id="kpiGroups">-</div></div>
+            </div>
+
+            <div class="toolbar">
+                <input id="keyword" placeholder="🔍 搜索邮箱 / 用户名">
+                <select id="tierFilter">
+                    <option value="">全部等级</option>
+                    <option value="normal">普通</option>
+                    <option value="premium">高级</option>
+                </select>
+                <button class="btn" id="searchBtn">搜索</button>
+                <span style="flex:1;"></span>
+                <button class="btn" id="addUserBtn" style="background:linear-gradient(135deg,#10b981,#059669);">+ 添加用户</button>
+            </div>
+
+            <!-- 选中后显示的批量操作条 -->
+            <div class="user-select-row" id="selectRow">
+                <span class="count">已选 <strong id="selCount">0</strong> 个用户</span>
+                <span>→ 分配到用户组：</span>
+                <select id="batchGroup"></select>
+                <button class="btn" id="batchAssign" style="padding:7px 16px;">批量加入组</button>
+                <button class="btn" id="clearSel" style="background:#94a3b8;padding:7px 14px;">取消选择</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:40px;"><input type="checkbox" id="selAll"></th>
+                        <th>ID</th><th>用户名</th><th>邮箱</th>
+                        <th>等级</th><th>所属用户组</th><th>状态</th><th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="userBody"></tbody>
+            </table>
+            <div id="pager" style="margin-top:16px;text-align:center;font-size:13px;color:#64748b;"></div>
+        </section>
+
+        <!-- 用户组管理 -->
+        <section id="tab-groups" style="display:none;">
+            <h2>用户组管理</h2>
+            <div class="desc">用户组绑定一个等级（普通/高级）。把用户加入某个组，其等级会自动同步</div>
+
+            <div class="toolbar">
+                <input id="newGroupName" placeholder="新建组名">
+                <select id="newGroupTier">
+                    <option value="normal">普通组</option>
+                    <option value="premium">高级组</option>
+                </select>
+                <input id="newGroupDesc" placeholder="描述（可选）" style="flex:1;min-width:200px;">
+                <button class="btn" id="addGroupBtn">+ 新建用户组</button>
+            </div>
+
+            <div class="group-card-grid" id="groupCards"></div>
+        </section>
+    </main>
+</div>
+
+<!-- 组成员弹窗 -->
+<div class="modal-mask" id="memberModal">
+    <div class="modal">
+        <div class="modal-head">
+            <div class="title" id="memberTitle">组成员</div>
+            <button class="close" onclick="closeMemberModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div style="margin-bottom:12px;">
+                <select id="addMemberSelect" style="padding:8px 12px;border:1px solid #d1d9e0;border-radius:6px;font-size:13px;min-width:240px;">
+                    <option value="">选择用户加入此组...</option>
+                </select>
+                <button class="btn" id="addMemberBtn" style="padding:8px 16px;">加入</button>
+            </div>
+            <div class="member-list" id="memberList"></div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+import { api, tokenStore, logout } from '/frontend/assets/js/api.js';
+
+if (!tokenStore.get()) location.href = '/login';
+
+// 切换 Tab
+document.querySelectorAll('.sidebar nav a[data-tab]').forEach(a => {
+    a.onclick = (e) => {
+        e.preventDefault();
+        document.querySelectorAll('.sidebar nav a').forEach(x => x.classList.remove('active'));
+        a.classList.add('active');
+        document.getElementById('tab-users').style.display = a.dataset.tab === 'users' ? '' : 'none';
+        document.getElementById('tab-groups').style.display = a.dataset.tab === 'groups' ? '' : 'none';
+        if (a.dataset.tab === 'groups') loadGroupCards();
+        if (a.dataset.tab === 'users') loadUsers();
+    };
+});
+
+document.getElementById('logoutLink').onclick = async (e) => {
+    e.preventDefault();
+    await logout();
+};
+
+// ---------- 公共状态 ----------
+let groupsCache = [];
+let allUsersCache = [];   // 仅用于"加入组" 选择列表
+let currentSkip = 0;
+const PAGE = 20;
+
+function escapeHtml(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// ---------- 加载用户组（缓存） ----------
+async function loadGroupsOnce() {
+    groupsCache = await api('/api/v1/admin/groups');
+    // 更新 batchGroup 与行内 dropdown 用的 option
+    refreshGroupSelectors();
+}
+
+function refreshGroupSelectors() {
+    const batch = document.getElementById('batchGroup');
+    batch.innerHTML = '<option value="">选择目标组...</option>' +
+        groupsCache.map(g => `<option value="${g.id}">${escapeHtml(g.name)} (${g.tier === 'premium' ? '高级' : '普通'})</option>`).join('');
+}
+
+// ---------- 用户列表 ----------
+async function loadUsers() {
+    if (!groupsCache.length) await loadGroupsOnce();
+    const kw = document.getElementById('keyword').value.trim();
+    const tier = document.getElementById('tierFilter').value;
+    const qs = new URLSearchParams({ skip: currentSkip, limit: PAGE });
+    if (kw) qs.set('keyword', kw);
+    if (tier) qs.set('tier', tier);
+    const data = await api('/api/v1/admin/users?' + qs.toString());
+
+    // KPI 更新
+    document.getElementById('kpiTotal').textContent = data.total;
+    document.getElementById('kpiNormal').textContent = data.items.filter(u => u.tier === 'normal').length + (data.total > PAGE ? '+' : '');
+    document.getElementById('kpiPremium').textContent = data.items.filter(u => u.tier === 'premium').length + (data.total > PAGE ? '+' : '');
+    document.getElementById('kpiGroups').textContent = groupsCache.length;
+
+    const body = document.getElementById('userBody');
+    body.innerHTML = '';
+    data.items.forEach(u => {
+        const tr = document.createElement('tr');
+        const groupOpts = ['<option value="">— 未分配 —</option>',
+            ...groupsCache.map(g => `<option value="${g.id}" ${u.group && u.group.id === g.id ? 'selected' : ''}>${escapeHtml(g.name)}</option>`)
+        ].join('');
+        tr.innerHTML = `
+            <td><input type="checkbox" class="userChk" value="${u.id}"></td>
+            <td>#${u.id}</td>
+            <td>${escapeHtml(u.username)}</td>
+            <td>${escapeHtml(u.email)}</td>
+            <td>
+                <span class="badge ${u.tier}">${u.tier === 'premium' ? '高级' : '普通'}</span>
+                ${u.is_admin ? '<span class="badge admin">管理员</span>' : ''}
+            </td>
+            <td>
+                <select class="row-group-select" data-user-id="${u.id}">${groupOpts}</select>
+            </td>
+            <td>${u.is_active ? '<span style="color:#10b981;">✅ 正常</span>' : '<span style="color:#94a3b8;">⛔ 禁用</span>'}</td>
+            <td>
+                ${u.tier === 'normal'
+                    ? `<button class="action-btn promote" data-id="${u.id}" data-act="promote" title="升级为高级">⬆ 升级</button>`
+                    : `<button class="action-btn demote" data-id="${u.id}" data-act="demote" title="降级为普通">⬇ 降级</button>`}
+                <button class="action-btn delete" data-id="${u.id}" data-act="delete" title="删除用户">🗑 删除</button>
+            </td>`;
+        body.appendChild(tr);
+    });
+
+    // 行内组选择变化 → 立即调用 API 更新
+    body.querySelectorAll('.row-group-select').forEach(sel => {
+        sel.onchange = async () => {
+            const uid = sel.dataset.userId;
+            const gid = sel.value;
+            try {
+                if (gid) {
+                    await api(`/api/v1/admin/users/${uid}`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({ group_id: Number(gid) })
+                    });
+                } else {
+                    // 取消所属组
+                    await api(`/api/v1/admin/users/${uid}`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({ group_id: null })
+                    });
+                }
+                loadUsers();
+            } catch (err) { alert(err.message); loadUsers(); }
+        };
+    });
+
+    // 操作按钮
+    body.onclick = async (e) => {
+        const btn = e.target.closest('.action-btn');
+        if (!btn) return;
+        const id = btn.dataset.id, act = btn.dataset.act;
+        try {
+            if (act === 'promote') await api(`/api/v1/admin/users/${id}`, { method: 'PATCH', body: JSON.stringify({ tier: 'premium' }) });
+            if (act === 'demote') await api(`/api/v1/admin/users/${id}`, { method: 'PATCH', body: JSON.stringify({ tier: 'normal' }) });
+            if (act === 'delete' && confirm('确定删除该用户？该操作不可恢复！')) await api(`/api/v1/admin/users/${id}`, { method: 'DELETE' });
+            loadUsers();
+        } catch (err) { alert(err.message); }
+    };
+
+    // 复选框联动
+    body.querySelectorAll('.userChk').forEach(c => {
+        c.onchange = updateSelCount;
+    });
+
+    document.getElementById('pager').innerHTML = `
+        <button class="btn" style="width:auto;padding:6px 14px;background:#f1f5f9;color:#475569;box-shadow:none;" ${currentSkip === 0 ? 'disabled' : ''} id="prev">← 上一页</button>
+        <span style="margin:0 14px;">共 ${data.total} 条 / 第 ${Math.floor(currentSkip / PAGE) + 1} 页</span>
+        <button class="btn" style="width:auto;padding:6px 14px;background:#f1f5f9;color:#475569;box-shadow:none;" ${currentSkip + PAGE >= data.total ? 'disabled' : ''} id="next">下一页 →</button>
+    `;
+    document.getElementById('prev')?.addEventListener('click', () => { currentSkip = Math.max(0, currentSkip - PAGE); loadUsers(); });
+    document.getElementById('next')?.addEventListener('click', () => { currentSkip += PAGE; loadUsers(); });
+    updateSelCount();
+}
+
+function updateSelCount() {
+    const n = document.querySelectorAll('.userChk:checked').length;
+    document.getElementById('selCount').textContent = n;
+    document.getElementById('selectRow').classList.toggle('show', n > 0);
+}
+
+document.getElementById('searchBtn').onclick = () => { currentSkip = 0; loadUsers(); };
+document.getElementById('keyword').onkeydown = (e) => { if (e.key === 'Enter') { currentSkip = 0; loadUsers(); } };
+document.getElementById('selAll').onchange = (e) => {
+    document.querySelectorAll('.userChk').forEach(c => c.checked = e.target.checked);
+    updateSelCount();
+};
+document.getElementById('clearSel').onclick = () => {
+    document.querySelectorAll('.userChk, #selAll').forEach(c => c.checked = false);
+    updateSelCount();
+};
+document.getElementById('batchAssign').onclick = async () => {
+    const ids = Array.from(document.querySelectorAll('.userChk:checked')).map(c => +c.value);
+    const gid = +document.getElementById('batchGroup').value;
+    if (!ids.length || !gid) return alert('请选择用户和目标组');
+    try {
+        const r = await api('/api/v1/admin/users/assign-group', { method: 'POST', body: JSON.stringify({ user_ids: ids, group_id: gid }) });
+        alert(`已成功把 ${r.affected} 个用户加入到目标组（等级已自动同步）`);
+        loadUsers();
+    } catch (e) { alert(e.message); }
+};
+
+// 添加用户
+document.getElementById('addUserBtn').onclick = async () => {
+    const email = prompt('请输入邮箱：');
+    if (!email) return;
+    const username = prompt('请输入用户名：');
+    if (!username) return;
+    const password = prompt('请输入初始密码（至少 8 位）：');
+    if (!password || password.length < 8) return alert('密码至少 8 位');
+    try {
+        await api('/api/v1/admin/users', { method: 'POST', body: JSON.stringify({
+            email, username, password, tier: 'normal', is_admin: false
+        })});
+        alert('用户创建成功');
+        loadUsers();
+    } catch (e) { alert(e.message); }
+};
+
+// ---------- 用户组卡片视图 ----------
+async function loadGroupCards() {
+    await loadGroupsOnce();
+    // 获取所有用户用于显示成员数与"加入组" 候选
+    const all = await api('/api/v1/admin/users?limit=200');
+    allUsersCache = all.items;
+
+    const cards = document.getElementById('groupCards');
+    if (!groupsCache.length) {
+        cards.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:#94a3b8;font-size:14px;">暂无用户组，请使用上方"+ 新建用户组"按钮添加</div>';
+        return;
+    }
+    cards.innerHTML = groupsCache.map(g => {
+        const members = allUsersCache.filter(u => u.group && u.group.id === g.id);
+        return `
+            <div class="group-card">
+                <div class="name">${escapeHtml(g.name)}
+                    <span class="badge ${g.tier}" style="margin-left:6px;font-size:11px;">${g.tier === 'premium' ? '高级' : '普通'}</span>
+                </div>
+                <div class="desc-text">${escapeHtml(g.description || '— 无描述 —')}</div>
+                <div class="members">成员数：<strong>${members.length}</strong> 人</div>
+                <div class="actions">
+                    <button class="view-btn" data-act="view" data-id="${g.id}">👥 查看成员</button>
+                    <button class="del-btn" data-act="del" data-id="${g.id}">🗑 删除组</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    cards.onclick = async (e) => {
+        const btn = e.target.closest('button[data-act]');
+        if (!btn) return;
+        const gid = +btn.dataset.id;
+        if (btn.dataset.act === 'del') {
+            if (confirm('删除该用户组？组内成员将变为"未分配"，但用户本身不会删除。')) {
+                try { await api(`/api/v1/admin/groups/${gid}`, { method: 'DELETE' }); loadGroupCards(); }
+                catch (err) { alert(err.message); }
+            }
+        } else if (btn.dataset.act === 'view') {
+            openMemberModal(gid);
+        }
+    };
+}
+
+// ---------- 组成员弹窗 ----------
+let currentModalGroupId = null;
+window.closeMemberModal = () => {
+    document.getElementById('memberModal').classList.remove('show');
+    currentModalGroupId = null;
+};
+
+async function openMemberModal(gid) {
+    currentModalGroupId = gid;
+    const grp = groupsCache.find(g => g.id === gid);
+    document.getElementById('memberTitle').textContent = `「${grp.name}」组成员`;
+    document.getElementById('memberModal').classList.add('show');
+    refreshMemberList();
+}
+
+function refreshMemberList() {
+    const gid = currentModalGroupId;
+    const members = allUsersCache.filter(u => u.group && u.group.id === gid);
+    const candidates = allUsersCache.filter(u => !u.group || u.group.id !== gid);
+
+    const list = document.getElementById('memberList');
+    if (!members.length) {
+        list.innerHTML = '<div class="empty">该组暂无成员，请从下拉框中选择用户加入</div>';
+    } else {
+        list.innerHTML = members.map(u => `
+            <div class="item">
+                <div>
+                    <strong>${escapeHtml(u.username)}</strong>
+                    <span style="color:#94a3b8;margin-left:6px;">${escapeHtml(u.email)}</span>
+                </div>
+                <button class="action-btn delete" data-remove-id="${u.id}" style="font-size:11px;">移出组</button>
+            </div>
+        `).join('');
+    }
+
+    // 候选下拉
+    const addSel = document.getElementById('addMemberSelect');
+    addSel.innerHTML = '<option value="">选择用户加入此组...</option>' +
+        candidates.map(u => `<option value="${u.id}">${escapeHtml(u.username)} (${escapeHtml(u.email)})</option>`).join('');
+
+    // 移出
+    list.onclick = async (e) => {
+        const btn = e.target.closest('[data-remove-id]');
+        if (!btn) return;
+        try {
+            await api(`/api/v1/admin/users/${btn.dataset.removeId}`, {
+                method: 'PATCH', body: JSON.stringify({ group_id: null })
+            });
+            // 重新拉取
+            const all = await api('/api/v1/admin/users?limit=200');
+            allUsersCache = all.items;
+            refreshMemberList();
+        } catch (err) { alert(err.message); }
+    };
+}
+
+document.getElementById('addMemberBtn').onclick = async () => {
+    const uid = document.getElementById('addMemberSelect').value;
+    if (!uid || !currentModalGroupId) return;
+    try {
+        await api('/api/v1/admin/users/assign-group', {
+            method: 'POST',
+            body: JSON.stringify({ user_ids: [Number(uid)], group_id: currentModalGroupId })
+        });
+        const all = await api('/api/v1/admin/users?limit=200');
+        allUsersCache = all.items;
+        refreshMemberList();
+    } catch (err) { alert(err.message); }
+};
+
+// 新建用户组
+document.getElementById('addGroupBtn').onclick = async () => {
+    const name = document.getElementById('newGroupName').value.trim();
+    const tier = document.getElementById('newGroupTier').value;
+    const desc = document.getElementById('newGroupDesc').value.trim();
+    if (!name) return alert('请填写组名');
+    try {
+        await api('/api/v1/admin/groups', { method: 'POST', body: JSON.stringify({ name, tier, description: desc || null }) });
+        document.getElementById('newGroupName').value = '';
+        document.getElementById('newGroupDesc').value = '';
+        loadGroupCards();
+    } catch (e) { alert(e.message); }
+};
+
+// 初始化
+loadUsers();
+</script>
+</body>
+</html>

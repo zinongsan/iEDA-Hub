@@ -1,0 +1,135 @@
+/* 主页风格用户菜单 - 精确复制 */
+.__user-menu {
+    position: relative;
+}
+
+.__user-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 20px;
+    color: #fff;
+    cursor: pointer;
+    transition: background .2s;
+    user-select: none;
+}
+
+.__user-trigger:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.__user-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4A7BC8, #1E3C72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.__user-name {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.__user-tier {
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.__user-tier.admin {
+    background: #d9534f;
+    color: #fff;
+}
+
+.__user-caret {
+    font-size: 10px;
+    opacity: 0.75;
+}
+
+.__user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 220px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: all .2s ease;
+    overflow: hidden;
+}
+
+.__user-trigger:hover + .__user-dropdown,
+.__user-dropdown:hover {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.__user-info {
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #F8FAFC, #FFF);
+    border-bottom: 1px solid #F0F2F5;
+}
+
+.__user-info-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1E3C72;
+    margin-bottom: 2px;
+}
+
+.__user-info-email {
+    font-size: 12px;
+    color: #6C7A89;
+}
+
+.__user-info-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 6px;
+    background: #d9534f;
+    color: #fff;
+}
+
+.__user-menu-list {
+    padding: 6px 0;
+}
+
+.__user-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    color: #2C3E50;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background .15s;
+    text-decoration: none;
+}
+
+.__user-menu-item:hover {
+    background: #F8FAFC;
+}
+
+.__user-menu-divider {
+    height: 1px;
+    background: #F0F2F5;
+    margin: 4px 0;
+}

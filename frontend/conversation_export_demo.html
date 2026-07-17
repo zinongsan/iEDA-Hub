@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>什么是setup time和hold time？ - 对话记录</title>
+  <link rel="icon" href="/frontend/assets/images/nctieda_logo.png">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --color-primary: #024BA1;
+      --color-secondary: #0F2C5E;
+      --color-bg: #F5F7FB;
+      --color-surface: #FFFFFF;
+      --color-text-primary: #1E293B;
+      --color-text-secondary: #64748B;
+      --color-border: #E2E8F0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text-primary);
+      line-height: 1.6;
+    }
+
+    .navbar {
+      background: linear-gradient(90deg, #013A80 0%, #024BA1 60%, #0a5fc0 100%);
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      box-shadow: 0 2px 12px rgba(2, 75, 161, 0.18);
+    }
+
+    .navbar-inner {
+      width: 100%;
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .navbar .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: white;
+      letter-spacing: 0.2px;
+    }
+
+    .navbar .logo img {
+      height: 28px;
+      object-fit: contain;
+    }
+
+    .user-badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .export-info {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 13px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 32px;
+    }
+
+    .page-header {
+      margin-bottom: 32px;
+    }
+
+    .page-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--color-text-primary);
+    }
+
+    .page-description {
+      font-size: 15px;
+      color: var(--color-text-secondary);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border: 1px solid var(--color-border);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .messages-container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border: 1px solid var(--color-border);
+      overflow: hidden;
+    }
+
+    .messages-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--color-border);
+      background: #fafbfc;
+    }
+
+    .messages-header h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+
+    .messages {
+      padding: 24px;
+    }
+
+    .message {
+      margin-bottom: 32px;
+      display: flex;
+      gap: 16px;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--color-border);
+    }
+
+    .message:last-child {
+      margin-bottom: 0;
+    }
+
+    .message.user {
+      background: #f0f6ff;
+      border-color: #d1e3ff;
+    }
+
+    .message.ai {
+      background: #fafbfc;
+      border-color: var(--color-border);
+    }
+
+    .message-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .message.user .message-icon {
+      background: linear-gradient(135deg, #024BA1 0%, #0a5fc0 100%);
+    }
+
+    .message.ai .message-icon {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .message-content {
+      flex: 1;
+    }
+
+    .message-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .message-role {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+
+    .message.user .message-role {
+      color: var(--color-primary);
+    }
+
+    .message-meta {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .message-text {
+      color: var(--color-text-primary);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .message-text p {
+      margin-bottom: 12px;
+    }
+
+    .message-text p:last-child {
+      margin-bottom: 0;
+    }
+
+    .message-text strong {
+      font-weight: 600;
+    }
+
+    .rating {
+      color: #f59e0b;
+    }
+
+    .cost {
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    .sources {
+      margin-top: 16px;
+      padding: 16px;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid var(--color-border);
+    }
+
+    .sources-title {
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    .source-item {
+      padding: 8px 0;
+      color: var(--color-text-secondary);
+      font-size: 13px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .source-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .footer {
+      margin-top: 40px;
+      padding: 24px;
+      text-align: center;
+      color: var(--color-text-secondary);
+      font-size: 13px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 24px 16px;
+      }
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="logo">
+        <img src="/frontend/assets/images/nctieda_logo.png" alt="iEDA-Hub Logo">
+        <span>iEDA-Hub AI问答系统</span>
+      </div>
+      <div class="navbar-right">
+        <div class="user-badge">
+          <span>👤</span>
+          <span>张三</span>
+        </div>
+        <div class="export-info">📅 导出时间: 2024-07-16 10:30:25</div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title">什么是setup time和hold time？</h1>
+      <p class="page-description">对话时间: 2024-07-15 10:15:32</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">消息总数</div>
+        <div class="stat-value">4</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">用户提问</div>
+        <div class="stat-value">2</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">AI回答</div>
+        <div class="stat-value">2</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">总成本(元)</div>
+        <div class="stat-value">0.05</div>
+      </div>
+    </div>
+
+    <div class="messages-container">
+      <div class="messages-header">
+        <h2>对话内容</h2>
+      </div>
+      <div class="messages">
+        <div class="message user">
+          <div class="message-icon">👤</div>
+          <div class="message-content">
+            <div class="message-header">
+              <span class="message-role">张三</span>
+              <div class="message-meta"><span>10:15:32</span></div>
+            </div>
+            <div class="message-text">
+              <p>什么是setup time和hold time？</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="message ai">
+          <div class="message-icon">🤖</div>
+          <div class="message-content">
+            <div class="message-header">
+              <span class="message-role">AI助手</span>
+              <div class="message-meta">
+                <span>10:15:35</span>
+                <span class="rating">⭐⭐⭐⭐⭐</span>
+                <span class="cost">¥0.02</span>
+              </div>
+            </div>
+            <div class="message-text">
+              <p><strong>Setup Time（建立时间）</strong>：数据信号在时钟有效边沿到来之前必须保持稳定的最小时间。</p>
+              <p><strong>Hold Time（保持时间）</strong>：数据信号在时钟有效边沿到来之后必须继续保持稳定的最小时间。</p>
+            </div>
+            <div class="sources">
+              <div class="sources-title">📚 参考来源</div>
+              <div class="source-item">📄 数字电路设计基础.pdf - 第45页</div>
+              <div class="source-item">📄 FPGA时序约束指南.pdf - 第12页</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="message user">
+          <div class="message-icon">👤</div>
+          <div class="message-content">
+            <div class="message-header">
+              <span class="message-role">张三</span>
+              <div class="message-meta"><span>10:16:10</span></div>
+            </div>
+            <div class="message-text">
+              <p>如果违反了这些约束会怎样？</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="message ai">
+          <div class="message-icon">🤖</div>
+          <div class="message-content">
+            <div class="message-header">
+              <span class="message-role">AI助手</span>
+              <div class="message-meta">
+                <span>10:16:13</span>
+                <span class="rating">⭐⭐⭐⭐⭐</span>
+                <span class="cost">¥0.03</span>
+              </div>
+            </div>
+            <div class="message-text">
+              <p><strong>1. 亚稳态</strong>：触发器输出可能处于不确定状态。</p>
+              <p><strong>2. 数据错误</strong>：可能捕获到错误的数据值。</p>
+              <p><strong>3. 系统不稳定</strong>：亚稳态可能传播到后续电路。</p>
+            </div>
+            <div class="sources">
+              <div class="sources-title">📚 参考来源</div>
+              <div class="source-item">📄 数字电路设计基础.pdf - 第47页</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>导出自 iEDA-Hub AI智能问答系统 © 2024 GuoChuang Technology</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,184 @@
+/* 主页风格用户菜单 */
+.__user-menu {
+    position: relative;
+}
+
+.__user-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    outline: none;
+}
+
+.__user-trigger:hover,
+.__user-trigger:focus {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+.__user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.__user-name {
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.__user-tier {
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.__user-tier.admin {
+    background: #d9534f;
+    color: white;
+}
+
+.__user-caret {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 10px;
+    transition: transform 0.2s;
+}
+
+.__user-trigger:hover .__user-caret {
+    transform: translateY(2px);
+}
+
+/* 下拉菜单 */
+.__user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 260px;
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.__user-menu:focus-within .__user-dropdown,
+.__user-dropdown:hover {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.__user-info {
+    padding: 20px 18px;
+    background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.__user-info-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1E293B;
+    margin-bottom: 4px;
+}
+
+.__user-info-email {
+    font-size: 13px;
+    color: #64748B;
+    margin-bottom: 8px;
+}
+
+.__user-info-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #E2E8F0;
+    color: #475569;
+}
+
+.__user-info-tag.admin {
+    background: #d9534f;
+    color: white;
+}
+
+.__user-menu-list {
+    padding: 8px 0;
+}
+
+.__user-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    color: #475569;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.__user-menu-item:hover {
+    background: #F8FAFC;
+    color: #024BA1;
+}
+
+.__user-menu-item.danger:hover {
+    background: #FEF2F2;
+    color: #DC2626;
+}
+
+.__user-menu-item .__icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+.__user-menu-divider {
+    height: 1px;
+    background: #E2E8F0;
+    margin: 8px 10px;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .__user-name {
+        display: none;
+    }
+
+    .__user-tier {
+        display: none;
+    }
+
+    .__user-dropdown {
+        width: 220px;
+    }
+}

@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人中心 - iEDA-Hub</title>
+<link rel="icon" href="/frontend/assets/images/nctieda_logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --color-primary: #024BA1;
+    --color-primary-dark: #013A7E;
+    --color-primary-light: #1E6FCF;
+    --color-secondary: #0F2C5E;
+    --color-accent: #2A5298;
+    --color-bg: #F5F7FB;
+    --color-surface: #FFFFFF;
+    --color-text-primary: #1E293B;
+    --color-text-secondary: #64748B;
+    --color-text-light: #94A3B8;
+    --color-border: #E2E8F0;
+    --color-success: #10B981;
+    --color-warning: #F59E0B;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* 顶部导航 - 与主页一致 */
+.navbar {
+    background: linear-gradient(90deg, #013A80 0%, #024BA1 60%, #0a5fc0 100%);
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    box-shadow: 0 2px 12px rgba(2, 75, 161, 0.18);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+}
+
+.navbar-inner {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navbar .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+    letter-spacing: 0.2px;
+    transition: opacity 0.2s;
+}
+
+.navbar .logo:hover {
+    opacity: 0.9;
+}
+
+.navbar .logo svg {
+    flex-shrink: 0;
+}
+
+.navbar .logo img {
+    height: 28px;
+    flex-shrink: 0;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-btn {
+    background: rgba(255, 255, 255, 0.16);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    padding: 7px 20px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    backdrop-filter: blur(6px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.28);
+    transform: translateY(-1px);
+}
+
+
+/* 主容器 */
+.container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 88px 40px 48px 40px;  /* top增加以适应固定导航栏 56px + 32px */
+}
+
+/* 页面标题区域 */
+.page-title-section {
+    margin-bottom: 32px;
+}
+
+.page-title {
+    font-size: 40px;  /* 增大：36px → 40px */
+    font-weight: 800;
+    color: var(--color-text-primary);
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+}
+
+.page-description {
+    font-size: 17px;  /* 增大：16px → 17px */
+    color: var(--color-text-secondary);
+}
+
+/* 用户主卡片 */
+.profile-hero {
+    background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+    border-radius: 24px;
+    padding: 56px;  /* 增大：48px → 56px */
+    margin-bottom: 40px;  /* 增大间距 */
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(2, 75, 161, 0.2);
+}
+
+.profile-hero::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.profile-hero-content {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.profile-avatar-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: 700;
+    color: white;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+    background-size: 110%;  /* 稍微放大图片，确保完全覆盖 */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #1E3C72;  /* 深蓝色作为默认背景 */
+}
+
+.avatar-upload-btn {
+    position: absolute;
+    bottom: -6px;
+    right: -6px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: white;
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+    box-shadow: 0 3px 10px rgba(2, 75, 161, 0.3);
+    transition: all 0.2s;
+    z-index: 10;
+}
+
+.avatar-upload-btn:hover {
+    transform: scale(1.15);
+    box-shadow: 0 5px 14px rgba(2, 75, 161, 0.4);
+}
+
+.profile-status {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 32px;
+    height: 32px;
+    background: var(--color-success);
+    border: 4px solid white;
+    border-radius: 50%;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-name {
+    font-size: 36px;  /* 增大：32px → 36px */
+    font-weight: 700;
+    color: white;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+}
+
+.profile-role {
+    font-size: 18px;  /* 增大：16px → 18px */
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 18px;
+}
+
+.profile-tags {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.tag {
+    padding: 6px 16px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    color: white;
+    font-size: 14px;  /* 增大：13px → 14px */
+    font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.profile-actions {
+    display: flex;
+    gap: 12px;
+    margin-left: auto;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.btn-white {
+    background: white;
+    color: var(--color-primary);
+}
+
+.btn-white:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+}
+
+.btn-outline {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+}
+
+/* 未完善提示 */
+.alert-incomplete {
+    background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+    border: 2px solid var(--color-warning);
+    border-radius: 16px;
+    padding: 24px 32px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.alert-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.alert-icon {
+    font-size: 32px;
+}
+
+.alert-text h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #92400E;
+    margin-bottom: 4px;
+}
+
+.alert-text p {
+    font-size: 14px;
+    color: #B45309;
+}
+
+.btn-warning {
+    background: var(--color-warning);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-warning:hover {
+    background: #D97706;
+    transform: translateY(-2px);
+}
+
+/* 内容网格 */
+.content-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;  /* 增大：32px → 40px */
+}
+
+/* 信息卡片组 */
+.cards-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.info-card {
+    background: var(--color-surface);
+    border-radius: 20px;
+    padding: 36px;  /* 增大：32px → 36px */
+    box-shadow: 0 4px 12px rgba(15, 44, 94, 0.08);
+    transition: all 0.3s;
+}
+
+.info-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(15, 44, 94, 0.12);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--color-border);
+}
+
+.card-title {
+    font-size: 20px;  /* 增大：18px → 20px */
+    font-weight: 700;
+    color: var(--color-text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-title-icon {
+    font-size: 22px;  /* 增大：20px → 22px */
+}
+
+.card-action {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: color 0.2s;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: inherit;
+}
+
+.card-action:hover {
+    color: var(--color-primary-dark);
+}
+
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info-label {
+    font-size: 15px;  /* 增大：14px → 15px */
+    color: var(--color-text-secondary);
+    font-weight: 500;
+}
+
+.info-value {
+    font-size: 16px;  /* 增大：15px → 16px */
+    color: var(--color-text-primary);
+    font-weight: 600;
+    text-align: right;
+}
+
+.info-value.highlight {
+    color: var(--color-primary);
+}
+
+.info-value.empty {
+    color: var(--color-text-light);
+    font-style: italic;
+}
+
+/* 侧边栏 */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* 快速操作 */
+.quick-actions {
+    background: var(--color-surface);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 4px 12px rgba(15, 44, 94, 0.08);
+}
+
+.quick-actions-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 20px;
+}
+
+.action-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.action-btn {
+    background: var(--color-bg);
+    border: 2px solid var(--color-border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.action-btn:hover {
+    border-color: var(--color-primary);
+    background: var(--color-surface);
+    transform: translateX(4px);
+}
+
+.action-btn-icon {
+    font-size: 24px;
+}
+
+.action-btn-text {
+    flex: 1;
+}
+
+.action-btn-title {
+    font-size: 15px;  /* 增大：14px → 15px */
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 2px;
+}
+
+.action-btn-desc {
+    font-size: 13px;  /* 增大：12px → 13px */
+    color: var(--color-text-secondary);
+}
+
+.action-btn.danger:hover {
+    border-color: #EF4444;
+    background: #FEF2F2;
+}
+
+/* 开关按钮样式 */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #CBD5E1;
+    transition: 0.3s;
+    border-radius: 26px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--color-primary);
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+/* 统计卡片 */
+.stats-card {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+    border-radius: 20px;
+    padding: 28px;
+    color: white;
+    box-shadow: 0 8px 24px rgba(2, 75, 161, 0.2);
+}
+
+.stats-title {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.loading {
+    text-align: center;
+    padding: 60px;
+    color: var(--color-text-secondary);
+}
+
+/* 响应式 */
+@media (max-width: 1024px) {
+    .content-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-hero-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile-actions {
+        margin-left: 0;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar-content {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .profile-hero {
+        padding: 32px 24px;
+    }
+
+    .alert-incomplete {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<nav class="navbar">
+    <div class="navbar-inner">
+        <a href="/app/iedahub" class="logo">
+            <svg width="22" height="22" viewBox="0 0 28 28" style="flex-shrink:0">
+                <path d="M8,3 L22,3 A3,3 0 0 1 25,6 L25,22 A3,3 0 0 1 22,25 L6,25 A3,3 0 0 1 3,22 L3,8 Z" fill="rgba(255,255,255,.12)" stroke="#fff" stroke-width="1.8"/>
+                <rect x="10" y="10" width="8" height="8" rx="1.5" fill="#fff" opacity="0.5"/>
+                <rect x="0" y="9" width="3" height="2.5" fill="#fff"/>
+                <rect x="0" y="16.5" width="3" height="2.5" fill="#fff"/>
+                <rect x="25" y="9" width="3" height="2.5" fill="#fff"/>
+                <rect x="25" y="16.5" width="3" height="2.5" fill="#fff"/>
+            </svg>
+            <span>iEDAHub</span>
+        </a>
+        <div class="navbar-right">
+            <a href="/logs" class="nav-btn">📊 操作日志</a>
+        </div>
+    </div>
+</nav>
+
+<!-- 主容器 -->
+<div class="container" id="page">
+    <div class="loading">加载中...</div>
+</div>
+
+<script type="module">
+import { api, tokenStore, logout } from '/frontend/assets/js/api.js';
+
+if (!tokenStore.get()) {
+    location.href = '/login?next=' + encodeURIComponent(location.pathname);
+}
+
+const page = document.getElementById('page');
+
+function escapeHtml(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function fmtDate(s) {
+    if (!s) return '—';
+    try { return new Date(s).toLocaleString('zh-CN'); } catch { return s; }
+}
+
+async function render() {
+    let user;
+    try {
+        user = await api('/api/v1/users/me');
+    } catch (e) {
+        page.innerHTML = `<div class="loading" style="color:#ef4444;">加载失败：${e.message}</div>`;
+        return;
+    }
+
+    const firstChar = (user.real_name || user.username || user.email || 'U').charAt(0).toUpperCase();
+    const roleText = user.role === 'student' ? '学生' : user.role === 'teacher' ? '老师' : '未设置';
+    const tierText = user.tier === 'premium' ? '高级用户' : '普通用户';
+
+    page.innerHTML = `
+        <!-- 页面标题 -->
+        <div class="page-title-section">
+            <h1 class="page-title">个人中心</h1>
+            <p class="page-description">管理你的个人信息、偏好设置和账号安全</p>
+        </div>
+
+        ${!user.profile_completed ? `
+        <div class="alert-incomplete">
+            <div class="alert-content">
+                <div class="alert-icon">⚠️</div>
+                <div class="alert-text">
+                    <h3>个人信息未完善</h3>
+                    <p>完善个人信息以解锁平台所有功能</p>
+                </div>
+            </div>
+            <button class="btn-warning" onclick="location.href='/complete-profile'">立即完善 →</button>
+        </div>
+        ` : ''}
+
+        <!-- 用户主卡片 -->
+        <div class="profile-hero">
+            <div class="profile-hero-content">
+                <div class="profile-avatar-wrapper">
+                    <div class="profile-avatar" id="userAvatar" style="${user.avatar_url ? `background-image: url('${user.avatar_url}'); background-size: 110%;` : 'background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px);'}">
+                        ${user.avatar_url ? '' : escapeHtml(firstChar)}
+                    </div>
+                    <input type="file" id="avatarInput" accept="image/*" style="display:none;">
+                    <button class="avatar-upload-btn" onclick="document.getElementById('avatarInput').click()" title="上传头像">
+                        <span style="display:block;margin-top:-1px;">📷</span>
+                    </button>
+                    ${user.is_active ? '<div class="profile-status"></div>' : ''}
+                </div>
+                <div class="profile-info">
+                    <h2 class="profile-name">${escapeHtml(user.real_name || user.username)}</h2>
+                    <p class="profile-role">${escapeHtml(user.school || '未填写学校')} · ${escapeHtml(user.role === 'student' ? user.major : user.college) || '未填写' + (user.role === 'student' ? '专业' : '学院')} · ${roleText}</p>
+                    <div class="profile-tags">
+                        <span class="tag">🎓 ${roleText}</span>
+                        <span class="tag">⭐ ${tierText}</span>
+                        ${user.is_admin ? '<span class="tag">👑 管理员</span>' : ''}
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <button class="btn btn-white" onclick="showEditModal()">✏️ 编辑资料</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 内容布局 -->
+        <div class="content-layout">
+
+            <!-- 主要内容区 -->
+            <div class="cards-stack">
+
+                <!-- 基本信息卡片 -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <span class="card-title-icon">👤</span>
+                            基本信息
+                        </h3>
+                    </div>
+                    <div class="info-list">
+                        <div class="info-item">
+                            <span class="info-label">用户 ID</span>
+                            <span class="info-value highlight">#${user.id}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">用户名</span>
+                            <span class="info-value">${escapeHtml(user.username)}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">邮箱</span>
+                            <span class="info-value">${escapeHtml(user.email)}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">手机号</span>
+                            <span class="info-value ${user.phone ? '' : 'empty'}">${escapeHtml(user.phone) || '未填写'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">账号状态</span>
+                            <span class="info-value" style="color: ${user.is_active ? 'var(--color-success)' : '#EF4444'};">● ${user.is_active ? '正常' : '已禁用'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 学术信息卡片 -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <span class="card-title-icon">📚</span>
+                            学术信息
+                        </h3>
+                    </div>
+                    <div class="info-list">
+                        <div class="info-item">
+                            <span class="info-label">角色</span>
+                            <span class="info-value">${roleText}</span>
+                        </div>
+                        ${user.role === 'student' ? `
+                        <div class="info-item">
+                            <span class="info-label">学号</span>
+                            <span class="info-value ${user.student_id ? '' : 'empty'}">${escapeHtml(user.student_id) || '未填写'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">专业</span>
+                            <span class="info-value ${user.major ? '' : 'empty'}">${escapeHtml(user.major) || '未填写'}</span>
+                        </div>
+                        ` : ''}
+                        ${user.role === 'teacher' ? `
+                        <div class="info-item">
+                            <span class="info-label">学院</span>
+                            <span class="info-value ${user.college ? '' : 'empty'}">${escapeHtml(user.college) || '未填写'}</span>
+                        </div>
+                        ` : ''}
+                        <div class="info-item">
+                            <span class="info-label">学校</span>
+                            <span class="info-value ${user.school ? '' : 'empty'}">${escapeHtml(user.school) || '未填写'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 账号时间线 -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <span class="card-title-icon">⏰</span>
+                            账号时间线
+                        </h3>
+                    </div>
+                    <div class="info-list">
+                        <div class="info-item">
+                            <span class="info-label">注册时间</span>
+                            <span class="info-value">${fmtDate(user.created_at)}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">上次登录</span>
+                            <span class="info-value">${user.last_login_at ? fmtDate(user.last_login_at) : '首次登录'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">信息完善状态</span>
+                            <span class="info-value" style="color: ${user.profile_completed ? 'var(--color-success)' : 'var(--color-warning)'};">${user.profile_completed ? '✓ 已完善' : '⚠ 未完善'}</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 侧边栏 -->
+            <div class="sidebar">
+
+                <!-- 统计卡片 -->
+                <div class="stats-card">
+                    <div class="stats-title">📊 账号统计</div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">${Math.floor((Date.now() - new Date(user.created_at)) / (1000 * 60 * 60 * 24))}</div>
+                            <div class="stat-label">注册天数</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${user.profile_completed ? '100%' : '60%'}</div>
+                            <div class="stat-label">资料完整度</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${tierText}</div>
+                            <div class="stat-label">会员等级</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${user.is_admin ? '管理员' : '用户'}</div>
+                            <div class="stat-label">账号类型</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快速操作 -->
+                <div class="quick-actions">
+                    <h3 class="quick-actions-title">快速操作</h3>
+                    <div class="action-list">
+                        <button class="action-btn" onclick="document.getElementById('pwdSection').style.display='block'; document.getElementById('pwdSection').scrollIntoView({behavior:'smooth'});">
+                            <div class="action-btn-icon">🔑</div>
+                            <div class="action-btn-text">
+                                <div class="action-btn-title">修改密码</div>
+                                <div class="action-btn-desc">更改登录密码</div>
+                            </div>
+                        </button>
+                        <button class="action-btn" onclick="exportUserData()">
+                            <div class="action-btn-icon">📊</div>
+                            <div class="action-btn-text">
+                                <div class="action-btn-title">数据导出</div>
+                                <div class="action-btn-desc">导出个人数据</div>
+                            </div>
+                        </button>
+                        <button class="action-btn" onclick="document.getElementById('notificationSection').style.display='block'; document.getElementById('notificationSection').scrollIntoView({behavior:'smooth'});">
+                            <div class="action-btn-icon">🔔</div>
+                            <div class="action-btn-text">
+                                <div class="action-btn-title">通知设置</div>
+                                <div class="action-btn-desc">管理推送偏好</div>
+                            </div>
+                        </button>
+                        ${user.is_admin ? `
+                        <button class="action-btn" onclick="location.href='/admin'">
+                            <div class="action-btn-icon">⚙️</div>
+                            <div class="action-btn-text">
+                                <div class="action-btn-title">管理后台</div>
+                                <div class="action-btn-desc">进入管理控制台</div>
+                            </div>
+                        </button>
+                        ` : ''}
+                        <button class="action-btn danger" onclick="doLogout()">
+                            <div class="action-btn-icon">🚪</div>
+                            <div class="action-btn-text">
+                                <div class="action-btn-title">退出登录</div>
+                                <div class="action-btn-desc">安全退出账号</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- 修改密码区域 -->
+        <div class="info-card" id="pwdSection" style="display:none;margin-top:32px;">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <span class="card-title-icon">🔑</span>
+                    修改密码
+                </h3>
+                <button class="card-action" onclick="document.getElementById('pwdSection').style.display='none'">取消</button>
+            </div>
+            <div class="msg" id="pwdMsg"></div>
+            <form id="pwdForm">
+                <div class="info-list">
+                    <div style="margin-bottom:16px;">
+                        <label style="display:block;font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:8px;">当前密码</label>
+                        <input type="password" name="old_password" required minlength="8" placeholder="请输入当前密码" style="width:100%;padding:12px 16px;border:2px solid var(--color-border);border-radius:10px;font-size:14px;transition:all 0.2s;">
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <label style="display:block;font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:8px;">新密码（至少8位）</label>
+                        <input type="password" name="new_password" required minlength="8" placeholder="请输入新密码" style="width:100%;padding:12px 16px;border:2px solid var(--color-border);border-radius:10px;font-size:14px;transition:all 0.2s;">
+                    </div>
+                    <button type="submit" class="btn btn-white" id="pwdBtn" style="width:100%;background:var(--color-primary);color:white;margin-top:8px;">更新密码</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 编辑资料区域 -->
+        <div class="info-card" id="editSection" style="display:none;margin-top:32px;">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <span class="card-title-icon">✏️</span>
+                    编辑个人信息
+                </h3>
+                <button class="card-action" onclick="document.getElementById('editSection').style.display='none'">取消</button>
+            </div>
+            <div class="msg" id="editMsg"></div>
+            <form id="editProfileForm">
+                <div class="info-list">
+                    <div style="margin-bottom:16px;">
+                        <label style="display:block;font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:8px;">真实姓名</label>
+                        <input type="text" name="real_name" placeholder="请输入真实姓名" style="width:100%;padding:12px 16px;border:2px solid var(--color-border);border-radius:10px;font-size:14px;">
+                    </div>
+
+                    <!-- 角色选择（可修改） -->
+                    <div style="margin-bottom:16px;">
+                        <label style="display:block;font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:8px;">身份角色 <span style="color:#EF4444;">*</span></label>
+                        <select name="role" id="editRoleSelect" required style="width:100%;padding:12px 16px;border:2px solid var(--color-border);border-radius:10px;font-size:14px;background:white;">
+                            <option value="">请选择</option>
+                            <option value="student">学生</option>
+                            <option value="teacher">老师</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom:16px;">
+                        <label style="display:block;font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:8px;">学校 <span style="color:#EF4444;">*</span></label>
+                        <input type="text" name="school" required placeholder="请输入学校" style="width:100%;padding:12px 16px;border:2px solid var(--color-border);border-radius:10px;font-size:14px;">
+                    </div>
+
+                    <div id="editStudentIdField" style="margin-bottom:16px;display:none;">
+                        <label style="display:block;font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:8px;">学号 <span style="color:#EF4444;">*</span></label>
+                        <input type="text" name="student_id" placeholder="请输入学号" style="width:100%;padding:12px 16px;border:2px solid var(--color-border);border-radius:10px;font-size:14px;">
+                    </div>
+
+                    <div id="editStudentMajorField" style="margin-bottom:16px;display:none;">
+                        <label style="display:block;font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:8px;">专业 <span style="color:#EF4444;">*</span></label>
+                        <input type="text" name="major" placeholder="请输入专业" style="width:100%;padding:12px 16px;border:2px solid var(--color-border);border-radius:10px;font-size:14px;">
+                    </div>
+                    <div id="editTeacherCollegeField" style="margin-bottom:16px;display:none;">
+                        <label style="display:block;font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:8px;">学院 <span style="color:#EF4444;">*</span></label>
+                        <input type="text" name="college" placeholder="请输入学院" style="width:100%;padding:12px 16px;border:2px solid var(--color-border);border-radius:10px;font-size:14px;">
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <label style="display:block;font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:8px;">手机号</label>
+                        <input type="tel" name="phone" placeholder="请输入手机号" pattern="^1[3-9]\\d{9}$" style="width:100%;padding:12px 16px;border:2px solid var(--color-border);border-radius:10px;font-size:14px;">
+                    </div>
+                    <button type="submit" class="btn btn-white" id="editBtn" style="width:100%;background:var(--color-primary);color:white;margin-top:8px;">保存修改</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 通知设置区域 -->
+        <div class="info-card" id="notificationSection" style="display:none;margin-top:32px;">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <span class="card-title-icon">🔔</span>
+                    通知设置
+                </h3>
+                <button class="card-action" onclick="document.getElementById('notificationSection').style.display='none'">取消</button>
+            </div>
+            <div class="msg" id="notificationMsg"></div>
+            <div class="info-list">
+                <div style="padding:16px 0;border-bottom:1px solid var(--color-border);display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <div style="font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:4px;">📧 邮件通知</div>
+                        <div style="font-size:13px;color:var(--color-text-secondary);">接收邮件提醒</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="notifEmail" ${user.notification_email ? 'checked' : ''}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div style="padding:16px 0;border-bottom:1px solid var(--color-border);display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <div style="font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:4px;">💬 系统通知</div>
+                        <div style="font-size:13px;color:var(--color-text-secondary);">接收站内消息</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="notifSystem" ${user.notification_system ? 'checked' : ''}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div style="padding:16px 0;border-bottom:1px solid var(--color-border);display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <div style="font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:4px;">📚 课程更新通知</div>
+                        <div style="font-size:13px;color:var(--color-text-secondary);">课程有更新时提醒</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="notifCourse" ${user.notification_course ? 'checked' : ''}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div style="padding:16px 0;display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <div style="font-size:14px;font-weight:600;color:var(--color-text-primary);margin-bottom:4px;">📢 公告通知</div>
+                        <div style="font-size:13px;color:var(--color-text-secondary);">平台公告推送</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="notifAnnouncement" ${user.notification_announcement ? 'checked' : ''}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // 修改密码表单
+    setTimeout(() => {
+        const pwdForm = document.getElementById('pwdForm');
+        const pwdMsg = document.getElementById('pwdMsg');
+        const pwdBtn = document.getElementById('pwdBtn');
+
+        if (pwdForm) {
+            pwdForm.onsubmit = async (e) => {
+                e.preventDefault();
+                pwdMsg.className = 'msg';
+                pwdMsg.style.display = 'none';
+                pwdBtn.disabled = true;
+                pwdBtn.textContent = '提交中...';
+                const fd = new FormData(pwdForm);
+                try {
+                    await api('/api/v1/users/me/password', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            old_password: fd.get('old_password'),
+                            new_password: fd.get('new_password'),
+                        }),
+                    });
+                    pwdMsg.className = 'msg';
+                    pwdMsg.style.display = 'block';
+                    pwdMsg.style.background = '#ecfdf5';
+                    pwdMsg.style.color = '#047857';
+                    pwdMsg.style.padding = '12px 16px';
+                    pwdMsg.style.borderRadius = '8px';
+                    pwdMsg.style.marginBottom = '16px';
+                    pwdMsg.textContent = '密码已更新，1.5秒后将退出登录...';
+                    setTimeout(() => doLogout(), 1500);
+                } catch (err) {
+                    pwdMsg.className = 'msg';
+                    pwdMsg.style.display = 'block';
+                    pwdMsg.style.background = '#fef2f2';
+                    pwdMsg.style.color = '#b91c1c';
+                    pwdMsg.style.padding = '12px 16px';
+                    pwdMsg.style.borderRadius = '8px';
+                    pwdMsg.style.marginBottom = '16px';
+                    pwdMsg.textContent = err.message || '修改失败';
+                } finally {
+                    pwdBtn.disabled = false;
+                    pwdBtn.textContent = '更新密码';
+                }
+            };
+        }
+    }, 500);
+
+    // 通知设置
+    setTimeout(() => {
+        const notifEmail = document.getElementById('notifEmail');
+        const notifSystem = document.getElementById('notifSystem');
+        const notifCourse = document.getElementById('notifCourse');
+        const notifAnnouncement = document.getElementById('notifAnnouncement');
+
+        const updateNotification = async (field, value) => {
+            try {
+                await api('/api/v1/users/me/notifications', {
+                    method: 'PATCH',
+                    body: JSON.stringify({ [field]: value })
+                });
+
+                // 显示成功提示
+                const msg = document.getElementById('notificationMsg');
+                msg.style.display = 'block';
+                msg.style.background = '#ecfdf5';
+                msg.style.color = '#047857';
+                msg.style.padding = '8px 12px';
+                msg.style.borderRadius = '8px';
+                msg.style.marginBottom = '12px';
+                msg.style.fontSize = '13px';
+                msg.textContent = '设置已保存';
+                setTimeout(() => { msg.style.display = 'none'; }, 2000);
+            } catch (err) {
+                alert('保存失败：' + err.message);
+            }
+        };
+
+        if (notifEmail) notifEmail.onchange = (e) => updateNotification('notification_email', e.target.checked);
+        if (notifSystem) notifSystem.onchange = (e) => updateNotification('notification_system', e.target.checked);
+        if (notifCourse) notifCourse.onchange = (e) => updateNotification('notification_course', e.target.checked);
+        if (notifAnnouncement) notifAnnouncement.onchange = (e) => updateNotification('notification_announcement', e.target.checked);
+    }, 500);
+
+    // 绑定编辑模态框
+    window.showEditModal = () => {
+        const editSection = document.getElementById('editSection');
+        const editForm = document.getElementById('editProfileForm');
+        const editRoleSelect = document.getElementById('editRoleSelect');
+
+        // 填充当前数据
+        editForm.real_name.value = user.real_name || '';
+        editForm.school.value = user.school || '';
+        editForm.phone.value = user.phone || '';
+        editRoleSelect.value = user.role || '';
+
+        // 根据角色显示对应字段
+        const studentIdField = document.getElementById('editStudentIdField');
+        const studentField = document.getElementById('editStudentMajorField');
+        const teacherField = document.getElementById('editTeacherCollegeField');
+
+        const updateFields = () => {
+            const role = editRoleSelect.value;
+            if (role === 'student') {
+                studentIdField.style.display = 'block';
+                studentField.style.display = 'block';
+                teacherField.style.display = 'none';
+                editForm.student_id.value = user.student_id || '';
+                editForm.major.value = user.major || '';
+                editForm.student_id.required = true;
+                editForm.major.required = true;
+                editForm.college.required = false;
+            } else if (role === 'teacher') {
+                studentIdField.style.display = 'none';
+                studentField.style.display = 'none';
+                teacherField.style.display = 'block';
+                editForm.college.value = user.college || '';
+                editForm.college.required = true;
+                editForm.student_id.required = false;
+                editForm.major.required = false;
+            } else {
+                studentIdField.style.display = 'none';
+                studentField.style.display = 'none';
+                teacherField.style.display = 'none';
+            }
+        };
+
+        // 初始化显示
+        updateFields();
+
+        // 角色切换时更新字段
+        editRoleSelect.onchange = updateFields;
+
+        editSection.style.display = 'block';
+        editSection.scrollIntoView({behavior: 'smooth'});
+    };
+
+    // 编辑资料表单
+    setTimeout(() => {
+        const editForm = document.getElementById('editProfileForm');
+        const editMsg = document.getElementById('editMsg');
+        const editBtn = document.getElementById('editBtn');
+
+        if (editForm) {
+            editForm.onsubmit = async (e) => {
+                e.preventDefault();
+                editMsg.className = 'msg';
+                editMsg.style.display = 'none';
+                editBtn.disabled = true;
+                editBtn.textContent = '保存中...';
+
+                const fd = new FormData(editForm);
+                const data = {
+                    real_name: fd.get('real_name') || null,
+                    role: fd.get('role') || null,
+                    student_id: fd.get('student_id') || null,
+                    school: fd.get('school'),
+                    major: fd.get('major') || null,
+                    college: fd.get('college') || null,
+                    phone: fd.get('phone') || null
+                };
+
+                try {
+                    await api('/api/v1/users/me/profile', {
+                        method: 'PATCH',
+                        body: JSON.stringify(data)
+                    });
+                    editMsg.className = 'msg';
+                    editMsg.style.display = 'block';
+                    editMsg.style.background = '#ecfdf5';
+                    editMsg.style.color = '#047857';
+                    editMsg.style.padding = '12px 16px';
+                    editMsg.style.borderRadius = '8px';
+                    editMsg.style.marginBottom = '16px';
+                    editMsg.textContent = '保存成功！页面即将刷新...';
+                    setTimeout(() => location.reload(), 1000);
+                } catch (err) {
+                    editMsg.className = 'msg';
+                    editMsg.style.display = 'block';
+                    editMsg.style.background = '#fef2f2';
+                    editMsg.style.color = '#b91c1c';
+                    editMsg.style.padding = '12px 16px';
+                    editMsg.style.borderRadius = '8px';
+                    editMsg.style.marginBottom = '16px';
+                    editMsg.textContent = err.message || '保存失败';
+                } finally {
+                    editBtn.disabled = false;
+                    editBtn.textContent = '保存修改';
+                }
+            };
+        }
+    }, 500);
+}
+
+async function doLogout() {
+    if (confirm('确定要退出登录吗？')) {
+        await logout();
+    }
+}
+
+// 导出用户数据
+async function exportUserData() {
+    try {
+        const data = await api('/api/v1/users/me/export');
+
+        // 创建Blob并下载
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const date = new Date().toISOString().split('T')[0];
+        a.download = `user_data_${data.username}_${date}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        alert('数据导出成功！');
+    } catch (err) {
+        alert('导出失败：' + err.message);
+    }
+}
+
+// 头像上传
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        const avatarInput = document.getElementById('avatarInput');
+        if (avatarInput) {
+            avatarInput.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                // 验证文件类型
+                if (!['image/jpeg', 'image/png', 'image/gif', 'image/jpg'].includes(file.type)) {
+                    alert('仅支持 JPG、PNG、GIF 格式');
+                    return;
+                }
+
+                // 验证文件大小（2MB）
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('文件大小不能超过2MB');
+                    return;
+                }
+
+                // 创建FormData
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    // 上传（使用fetch，credentials: 'include'携带HttpOnly cookie）
+                    const response = await fetch('/api/v1/users/me/avatar', {
+                        method: 'POST',
+                        credentials: 'include',  // 携带cookie
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const error = await response.json().catch(() => ({}));
+                        throw new Error(error.detail || '上传失败');
+                    }
+
+                    const result = await response.json();
+
+                    // 更新头像显示
+                    const avatar = document.getElementById('userAvatar');
+                    if (avatar) {
+                        avatar.style.backgroundImage = `url('${result.avatar_url}?t=${Date.now()}')`;
+                        avatar.style.backgroundSize = '110%';
+                        avatar.style.background = 'none';
+                        avatar.textContent = '';
+                    }
+
+                    alert('头像上传成功！');
+                } catch (err) {
+                    alert('上传失败：' + err.message);
+                }
+            };
+        }
+    }, 1000);
+});
+
+window.doLogout = doLogout;
+window.exportUserData = exportUserData;
+
+render();
+</script>
+
+</body>
+</html>
